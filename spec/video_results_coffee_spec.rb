@@ -1,16 +1,19 @@
-describe "SerpApi Desktop JSON" do
+describe "SerpApi Video Results" do
 
   before(:all) do
     @host = 'https://serpapi.com'
-    if ENV['SERPAPI_MODE'] == 'dev'
+    if ENV['API_KEY']
        @host = 'http://localhost:3000'
+       @url_api_key = '&api_key=' + ENV['API_KEY']
+    else
+      @url_api_key = ''
     end
  end
 
   describe "desktop: video results for Coffee" do
 
     before :all do
-      @response = HTTP.get @host + '/search.json?q=Coffee&tbm=vid&location=Dallas&hl=en&gl=us&device=desktop&source=test'
+      @response = HTTP.get @host + '/search.json?q=Coffee&tbm=vid&location=Dallas&hl=en&gl=us&device=desktop&source=test' + @url_api_key
       @json = @response.parse
     end
 
@@ -47,7 +50,7 @@ describe "SerpApi Desktop JSON" do
   describe "mobile: video results for Coffee" do
 
     before :all do
-      @response = HTTP.get @host + '/search.json?q=Coffee&tbm=vid&location=Dallas&hl=en&gl=us&device=mobile&source=test'
+      @response = HTTP.get @host + '/search.json?q=Coffee&tbm=vid&location=Dallas&hl=en&gl=us&device=mobile&source=test' + @url_api_key
       @json = @response.parse
       File.write('cache.json', JSON.pretty_generate(@json))
     end
@@ -70,9 +73,11 @@ describe "SerpApi Desktop JSON" do
         @first_result = @json["video_results"][0]
       end
 
-      %w(position title link thumbnail snippet).each do |field|
-        it "#{field}" do
-           expect(@json["video_results"][0][field]).not_to be_nil
+      %w(position title link thumbnail).each do |field|
+        10.times do |index|
+          it "json['video_results'][#{index}]#{field}" do
+            expect(@json["video_results"][0][field]).not_to be_nil
+          end
         end
       end
 
